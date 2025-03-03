@@ -1,0 +1,33 @@
+Important Features list
+
+ASEC 2024
+
+INCOME ANALYSIS AND POVERTY LINE
+
+FPOVCUT -- poverty threshold for a given family
+FAMLIS -- surface categorization of family income in relation to poverty line, see POVLL for more details
+POVLL -- provides percent relation to poverty line
+
+FTOT_R vs FTOTVAL -- different representations for pre-tax familial total income. FTOT_R has top-coding but is more likely to be available for public use.
+
+FEARNVAL --  pre-tax total family earnings (only includes wages and self employment income, excludes income from assets and other wealth): very useful for our project focus
+
+-- subfamily distinctions (should we include this?)
+-- farm income counts as self employment income? 
+
+-- poverty threshold ratio = FTOTVAL/FPOVCUT
+
+
+EDUCATION AND JOB ANALYSIS
+
+A_HGA -- educational attainment
+A_MJOCC -- classification of occupation type
+
+OTHER DEMOGRAPHIC ANALYSIS?
+
+ASSETS ANALYSIS
+
+CAP_VAL
+HRNTVAL
+HPROP_VAL
+FRNTVAL
