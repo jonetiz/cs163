@@ -13,15 +13,15 @@ class NavBlock(html.Div):
 
 navblocks = [
     NavBlock("/", "Home"),
-    NavBlock("/overview", "Project Overview"),
-    NavBlock("/analytics", "Analytics"),
-    NavBlock("/visualizations", "Visualizations")
+    NavBlock("/objectives", "Objectives"),
+    NavBlock("/methodology", "Analytical Methods"),
+    NavBlock("/findings", "Major Findings")
 ]
 
 app.layout = html.Div([
     html.Div([
         dcc.Location(id="url"),
-        html.Span('Inflation & Socioeconomic Classes'),
+        html.Span('Socioeconomic Classes Over Time'),
         html.Div(navblocks)
     ], id="navbar"),
     dash.page_container

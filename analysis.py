@@ -251,32 +251,6 @@ class Quantile(Analysis):
     def do_analysis(self):
         self.data['ADJUSTED_INC'] = self.data['FTOTVAL'] / (self.data['FPERSONS'])**.5
 
-        # Define Pew income thresholds relative to median adjusted income per year
-        def classify_income_group(df):
-            income_classes = []
-
-            for year in df['YEAR'].unique():
-                year_data = df[df['YEAR'] == year]
-                median_income = year_data['ADJUSTED_INC'].median()
-
-                # Define ranges (based on Pew logic)
-                lower = year_data['ADJUSTED_INC'] < 0.67 * median_income
-                middle = (year_data['ADJUSTED_INC'] >= 0.67 * median_income) & (year_data['ADJUSTED_INC'] <= 2 * median_income)
-                upper = year_data['ADJUSTED_INC'] > 2 * median_income
-
-                income_group = pd.Series(index=year_data.index, dtype="object")
-                income_group[lower] = 'Lower'
-                income_group[middle] = 'Middle'
-                income_group[upper] = 'Upper'
-
-                income_classes.append(income_group)
-
-            df['INCOME_CLASS'] = pd.concat(income_classes).sort_index()
-            return df
-
-        # Apply the classification
-        self.data = classify_income_group(self.data)
-
         # Quantile wage growth analysis: compare 2014 vs 2024
         quantiles = [.1, .2, .3, .4, .5, .6, .7, .8, .9]
         summary_list = []

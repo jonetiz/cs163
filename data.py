@@ -35,9 +35,9 @@ print(f"Loading merged ASEC data from {BUCKET_NAME if BUCKET_NAME else 'LOCAL'}.
 if BUCKET_NAME:
     asec_data = get_csv_from_gcs(BUCKET_NAME, 'merged_asec.csv')
 else:
-    asec_data = pd.read_csv('data/merged_asec.csv', low_memory=False)
+    asec_data = pd.read_csv('data/output/merged_asec.csv', low_memory=False)
 print(f"Loaded ASEC data; Shape: {asec_data.shape}")
 
-permutation_importance = analysis.PermutationImportance(asec_data)
-cross_sectional_regression = analysis.CrossSectionalRegression(asec_data)
-quantile = analysis.Quantile(asec_data)
+# permutation_importance = analysis.PermutationImportance(asec_data)
+# cross_sectional_regression = analysis.CrossSectionalRegression(asec_data)
+# quantile = analysis.Quantile(asec_data)

@@ -1,17 +1,17 @@
 import dash
 from dash import html, dcc
 
-dash.register_page(__name__, path='/overview')
+dash.register_page(__name__, path='/objectives')
 
 layout = html.Div([
     html.H1("Understanding the Effects of Inflation Across Socioeconomic Classes"),
     html.I("A project by Henry Chau and Jonathan Etiz for CS 163, Spring 2025"),
-    html.H3("Project Summary"),
+    html.H3("Project Objectives"),
     html.P("This project will delve into inflation and earnings data to determine if inflation and other economic factors affect socioeconomic classes evenly. " \
     "We will explore the differences between pure income based classification and a more inclusive definition for classification. " \
     "Using various statistical strategies, we will determine the following questions: "),
     html.Ol([
-        html.Li("Does wage growth have eany correlation to level of income?"),
+        html.Li("Does wage growth have any correlation to level of income?"),
         html.Li("Do wages grow uniformly throughout different economic classes (defined purely based on income) resultant to inflation?"),
         html.Li("Does including other features (such as wealth/assets, occupation, and education levels) in economic classification give any more intuition or information than a classification based purely on income? Do any of these other variables, mentioned above, exhibit any influence on wage growth?")
     ]),

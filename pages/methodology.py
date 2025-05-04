@@ -3,7 +3,7 @@ import dash
 from dash import html, dcc
 import data
 
-dash.register_page(__name__, path='/visualizations')
+dash.register_page(__name__, path='/methodology')
 
 layout = html.Div([
     html.H3("Permutation Importance Analysis"),
