@@ -140,7 +140,7 @@ class PermutationImportance(Analysis):
         feature_labels = {
             'A_HGA': 'Education Level',
             'A_MJOCC': 'Occupation Code',
-            'PEAFEVER': 'Military Service',
+            'PEAFEVER_YES': 'Military Service',
             'AGE_GROUP_0-19': 'Ages 0-19',
             'AGE_GROUP_20-29': 'Ages 20-29',
             'AGE_GROUP_30-39': 'Ages 30-39',

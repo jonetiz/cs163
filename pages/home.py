@@ -1,8 +1,8 @@
 import plotly.express as px
 import dash
 from dash import html, dcc
-import data
 import pandas as pd
+import data
 
 dash.register_page(__name__, path='/')
 

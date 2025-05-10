@@ -3,8 +3,6 @@ from google.cloud import storage
 import os
 from io import StringIO
 
-import analysis
-
 # BLOB is an acronym for "Binary Large Object". It's a data type that stores binary data, such as images, videos, and audio.
 def get_csv_from_gcs(bucket_name, source_blob_name):
     """Downloads a blob from the bucket."""
@@ -39,7 +37,3 @@ else:
     asec_data = pd.read_csv('data/output/merged/merged_asec.csv')
     fam_data = pd.read_csv('data/output/merged/merged_fam.csv')
 print(f"Loaded ASEC data; Shape: {asec_data.shape}")
-
-permutation_importance = analysis.PermutationImportance(asec_data)
-cross_sectional_regression = analysis.CrossSectionalRegression(asec_data)
-quantile = analysis.Quantile(fam_data)
