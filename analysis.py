@@ -5,13 +5,14 @@ import plotly.express as px
 import plotly.colors as pc
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.inspection import permutation_importance
+from sklearn.metrics import mean_squared_error
 from time import perf_counter
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
-import statsmodels.formula.api as smf
+import plotly.graph_objects as go
 
 class Analysis(ABC):
     """Analysis class to help with logging and organization"""
@@ -72,22 +73,39 @@ class PermutationImportance(Analysis):
         pivot = pivot[['AGE_GROUP', 'A_MJOCC', 'A_HGA', 'PEAFEVER', 'WAGE_GROWTH', 'WAGE_GROWTH_PCT']]
         pivot.dropna(inplace = True)
 
+        # Step 1: Prepare features and target
         features = [col for col in pivot.columns if col not in ['WAGE_GROWTH', 'WAGE_GROWTH_PCT']]
         X = pivot[features]
         y = pivot['WAGE_GROWTH_PCT']
 
-        model = RandomForestRegressor(n_estimators=100, random_state=0)
+        # Step 2: One-hot encode and mask invalid values
         X_encoded = pd.get_dummies(X, drop_first=True)
 
+        # Filter out invalid values
         mask = y.replace([np.inf, -np.inf], np.nan).notna()
-
-        # Filter both X and y
         X_clean = X_encoded[mask]
         y_clean = y[mask]
-        model.fit(X_clean, y_clean)
 
-        result = permutation_importance(model, X_clean, y_clean, n_repeats=10, random_state=0, scoring='r2')
+        # Clip to avoid log(0) or negative issues
+        y_clean = y_clean.clip(lower=-99.9)
 
+        # THEN log1p transform (after scaling percent down)
+        y_log = np.log1p(y_clean / 100)
+
+        # Fit model
+        model = RandomForestRegressor(n_estimators=100, random_state=0)
+        model.fit(X_clean, y_log)
+
+
+        # Step 5: Predict and compute RMSE on log-transformed scale
+        y_pred_log = model.predict(X_clean)
+        self.rmse = np.sqrt(mean_squared_error(y_log, y_pred_log))
+        print(f"RMSE on log-transformed target: {self.rmse:.4f}")
+
+        # Step 6: Compute permutation importance
+        result = permutation_importance(model, X_clean, y_log, n_repeats=10, random_state=0, scoring='r2')
+
+        # Step 7: Build importance dataframe
         self.importance_df = pd.DataFrame({
             'Feature': X_clean.columns,
             'Importance': result.importances_mean,
@@ -202,6 +220,7 @@ class CrossSectionalRegression(Analysis):
 
             # Fit the model on the current year's data
             model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
 
             # Get the coefficients for the model
             coefficients = model.named_steps['linearregression'].coef_
@@ -281,23 +300,61 @@ class Quantile(Analysis):
         self.pivoted['wage_growth_pct'] = 100 * (self.pivoted['wage_growth'] / self.pivoted[2014])
     
     def visualize(self, percentage):
-        fig = px.line(
-            self.pivoted.iloc[1:],
-            x='Quantile',
-            y='wage_growth_pct' if percentage else 'wage_growth',
-            color='INCOME_CLASS',
-            markers=True,
-            title='Wage Growth (2014-2024) by Income Class Across Quantiles',
-            labels={'wage_growth': 'Wage Growth ($)', 'wage_growth_pct': 'Percent Wage Growth (across 10 years)', 'Quantile': 'Income Quantile'}
-        )
+        if percentage:
+            # Define desired order
+            desired_order = ['Lower', 'Middle', 'Upper']
+            quantile_order = [str(i) for i in [.1, .2, .3, .4, .5, .6, .7, .8, .9]]
 
-        fig.update_layout(
-            height=500,
-            width=800,
-            xaxis=dict(
-                tickmode='array',
-                tickvals=[.1, .2, .3, .4, .5, .6, .7, .8, .9],
-                ticktext=['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%']
+            # Prepare the data
+            heat_data = self.pivoted.iloc[1:].copy()
+            heat_data['Quantile'] = heat_data['Quantile'].astype(str)
+
+            # Pivot with specified order
+            pivot_table = heat_data.pivot(index='INCOME_CLASS', columns='Quantile', values='wage_growth_pct')
+            pivot_table = pivot_table.loc[desired_order, quantile_order]  # enforce order
+
+            # Create z and text values
+            z = pivot_table.values
+            text = [[f"{val:.1f}%" for val in row] for row in z]
+
+            # Plot
+            fig = go.Figure(data=go.Heatmap(
+                z=z,
+                x=quantile_order,
+                y=desired_order,
+                text=text,
+                texttemplate="%{text}",
+                colorscale='Viridis',
+                colorbar_title='Wage Growth (%)'
+            ))
+
+            fig.update_layout(
+                title='Wage Growth Percent Across Quantiles and Income Classes',
+                xaxis_title='Income Percentile',
+                yaxis_title='Income Class',
+                height=500,
+                width=800
             )
-        )
-        return fig
+
+            return fig
+        else:
+            fig = px.line(
+                self.pivoted.iloc[1:],
+                x='Quantile',
+                y='wage_growth',
+                color='INCOME_CLASS',
+                markers=True,
+                title='Wage Growth (2014-2024) by Income Class Across Percentiles',
+                labels={'wage_growth': 'Wage Growth ($)', 'Quantile': 'Income Percentile', 'INCOME_CLASS': 'Income Class'}
+            )
+
+            fig.update_layout(
+                height=500,
+                width=800,
+                xaxis=dict(
+                    tickmode='array',
+                    tickvals=[.1, .2, .3, .4, .5, .6, .7, .8, .9],
+                    ticktext=['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%']
+                )
+            )
+            return fig
