@@ -24,5 +24,3 @@ app.yaml.template
 .venv/
 
 README.md
-
-data_preprocessing.ipynb

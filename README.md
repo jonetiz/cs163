@@ -33,7 +33,7 @@ All visualizations are rendered and analyses performed on Google App Engine from
 
 ## Project Structure
 ```
-.
+./
 ├─ assets/                      # Static assets
 │   └─ stylesheet.css
 │
