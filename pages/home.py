@@ -1,7 +1,5 @@
-import plotly.express as px
 import dash
 from dash import html, dcc
-import pandas as pd
 
 import analysis, data
 
@@ -10,7 +8,7 @@ dollar_change, pct_change = analysis.IncomeGrowth(data.asec_data).visualize()
 dash.register_page(__name__, path='/')
 
 layout = html.Div([
-    html.H1("Changes in Socioeconomic Classes Over Time"),
+    html.H1("Understanding Changes in Socioeconomic Classes Over Time"),
     html.H3("Henry Chau & Jonathan Etiz", style={'text-align': 'center'}),
     html.P( """
            This project is an exploration into earnings data to see the effect of natural inflation on socioeconomic classes, particularly how the lower, middle,

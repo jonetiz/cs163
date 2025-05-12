@@ -1,4 +1,4 @@
-# Changes in Socioeconomic Classes Over Time
+# Understanding Changes in Socioeconomic Classes Over Time
 A Data Science project by Henry Chau and Jonathan Etiz.
 
 This project is an exploration into earnings data to see the effect of natural inflation on socioeconomic classes, particularly how the lower, middle, and upper classes (as defined by Pew Research Center) respond in different ways.

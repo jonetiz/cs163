@@ -4,7 +4,7 @@ from dash import html, dcc
 dash.register_page(__name__, path='/objectives')
 
 layout = html.Div([
-    html.H1("Understanding the Effects of Inflation Across Socioeconomic Classes"),
+    html.H1("Understanding Changes in Socioeconomic Classes Over Time"),
     html.I("A project by Henry Chau and Jonathan Etiz for CS 163, Spring 2025"),
     html.H3("Project Objectives"),
     html.P("This project will delve into inflation and earnings data to determine if inflation and other economic factors affect socioeconomic classes evenly. " \
