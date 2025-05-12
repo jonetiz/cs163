@@ -5,14 +5,13 @@ import data, analysis
 
 dash.register_page(__name__, path='/methodology')
 
-# analysis code found in analysis.py
-permutation_importance = analysis.PermutationImportance(data.asec_data)
-cross_sectional_regression = analysis.CrossSectionalRegression(data.asec_data)
-quantile = analysis.Quantile(data.fam_data)
+asec_data = data.asec_data
+fam_data = data.fam_data
 
-permutation_importance.do_analysis()
-cross_sectional_regression.do_analysis()
-quantile.do_analysis()
+# analysis code found in analysis.py
+permutation_importance = analysis.PermutationImportance(asec_data)
+cross_sectional_regression = analysis.CrossSectionalRegression(asec_data)
+quantile = analysis.Quantile(fam_data)
 
 layout = html.Div([
     html.H3("Permutation Importance Analysis"),

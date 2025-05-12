@@ -25,7 +25,7 @@ class Analysis(ABC):
         self.do_analysis()
         time = perf_counter() - start_time
         print(f"Completed {self.__class__.__name__} Analysis ({time})")
-
+        
     @abstractmethod
     def do_analysis(self):
         """Perform the analysis"""
@@ -147,7 +147,7 @@ class PermutationImportance(Analysis):
         feature_labels = {
             'A_HGA': 'Education Level',
             'A_MJOCC': 'Occupation Code',
-            'PEAFEVER_YES': 'Military Service',
+            'PEAFEVER': 'Military Service',
             'AGE_GROUP_0-19': 'Ages 0-19',
             'AGE_GROUP_20-29': 'Ages 20-29',
             'AGE_GROUP_30-39': 'Ages 30-39',
@@ -335,7 +335,7 @@ class Quantile(Analysis):
             ))
 
             fig.update_layout(
-                title='Wage Growth Percent Across Quantiles and Income Classes',
+                title='Wage Growth Percentage Across Income Classes and Their Percentiles',
                 xaxis_title='Income Percentile',
                 yaxis_title='Income Class',
                 height=500,
@@ -364,3 +364,62 @@ class Quantile(Analysis):
                 )
             )
             return fig
+
+class IncomeGrowth(Analysis):
+    def do_analysis(self):
+        # calculate change in income over each year for each income bracket
+        self.income_data = []
+        for year in range(2014, 2025):
+            df_year = self.data[self.data['YEAR'] == year]
+            for income_class in ['Lower', 'Middle', 'Upper']:
+                df_group = df_year[df_year['INCOME_CLASS'] == income_class]
+                if not df_group.empty:
+                    self.income_data.append({'year': year, 'class': income_class, 'median_income': df_group['ADJUSTED_INC'].median()})
+
+        # calculate change per year
+        self.income_data = pd.DataFrame(self.income_data).set_index(['year', 'class'])
+        self.income_data['change'] = self.income_data['median_income'].diff(3)
+        self.income_data['pct_change'] = self.income_data['median_income'].pct_change(3) * 100
+
+        # calculate total change since 2014
+        self.income_data['total_change'] = self.income_data['change'].groupby('class').cumsum().fillna(0)
+        self.income_data['total_change_pct'] = ((self.income_data['total_change'] / (self.income_data['median_income'] - self.income_data['total_change'])) * 100).fillna(0)
+    
+    def visualize(self) -> tuple[go.Figure]:
+         # create plotly line chart showing dollar increase
+        raw_increase = px.line(self.income_data, x=self.income_data.index.get_level_values(0), y='total_change',
+        color=self.income_data.index.get_level_values(1), markers=True, title="Dollar Change in Income Over Time (2014-2024)",
+        labels={
+            'x': 'Year',
+            'total_change': 'Increase since 2014 ($)',
+            'color': 'Income Class'
+        })
+
+        # create plotly line chart showing percentage increase
+        pct_increase = px.line(self.income_data, x=self.income_data.index.get_level_values(0), y='total_change_pct',
+        color=self.income_data.index.get_level_values(1), markers=True, title="Percent Change in Income Over Time (2014-2024)",
+        labels={
+            'x': 'Year',
+            'total_change_pct': 'Increase since 2014 (%)',
+            'color': 'Income Class'
+        })
+
+        return raw_increase, pct_increase
+    
+class PovertyAnalysis(Analysis):
+    def do_analysis(self):
+        self.income_data = []
+        for year in range(2014, 2025):
+            df_year = self.data[(self.data['YEAR'] == year) & (self.data['INCOME_CLASS'] == 'Lower') & (self.data['FPOVCUT'] != -1)]
+            self.income_data.append({'year': year, 'median_income': df_year['ADJUSTED_INC'].median(), 'poverty_line': df_year['FPOVCUT'].min()})
+
+        self.income_data = pd.DataFrame(self.income_data).set_index('year')
+
+    def visualize(self):
+        fig = px.line(self.income_data, y=['median_income', 'poverty_line'], markers=True, title="Increase in Lower Class Income Relative to Poverty Line",
+        labels={
+            'year': 'Year',
+            'value': 'Dollar Value'
+        })
+
+        return fig

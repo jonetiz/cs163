@@ -23,11 +23,11 @@ layout = html.Div([
         html.Li("This project may result in findings that contradict our hypotheses, and in fact show that inflation affects classes uniformly - if this is the case, it may provide some unification across different socioeconomic classes")
     ]),
     html.H3("Data Sources"),
-    html.Ol([
-        html.Li([
-            dcc.Link("U.S. Bureau of Labor Statistics - Labor Force Statistics from the Current Population Survey", href="https://www.bls.gov/cps/earnings.htm", target="_blank"),
-            html.Ul([html.Li("Summarized data showing overall trends through the years.")])
-        ]),
+    html.Ul([
+        # html.Li([
+        #     dcc.Link("U.S. Bureau of Labor Statistics - Labor Force Statistics from the Current Population Survey", href="https://www.bls.gov/cps/earnings.htm", target="_blank"),
+        #     html.Ul([html.Li("Summarized data showing overall trends through the years.")])
+        # ]),
         html.Li([
             dcc.Link("U.S. Census Bureau - Current Population Survey, Annual Social and Economic Supplements", href="https://www.census.gov/programs-surveys/cps/data/datasets.html ", target="_blank"),
             html.Ul([html.Li("Large datasets containing raw Census data on income and socioeconomic factors.")])
@@ -36,7 +36,7 @@ layout = html.Div([
     html.H3("Expected Major Findings (Hypotheses)"),
     html.Ul([
         html.Li("Lower income wage earners do not experience proportional wage growth to higher income earners."),
-        html.Li("Wage growth is correlated to other factors commonly associated with socio-economic class division (e.g. assets owned, education level, occupation). A more holistic classification (as opposed to one purely based on income) would provide more information."),
+        html.Li("Wage growth is correlated to other factors commonly associated with socio-economic class division (e.g. assets owned, education level, occupation)."),
         html.Li("Extremely high income households/families may benefit from inflation in ways other than wages (ie. investments, real estate value)."),
         html.Li("People with more assets are less affected by inflation than people without, regardless of income.")
     ])
