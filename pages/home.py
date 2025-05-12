@@ -6,6 +6,7 @@ import data
 
 dash.register_page(__name__, path='/')
 
+# calculate change in income over each year for each income bracket
 income_data = []
 for year in range(2014, 2025):
     df_year = data.asec_data[data.asec_data['YEAR'] == year]
@@ -14,15 +15,16 @@ for year in range(2014, 2025):
         if not df_group.empty:
             income_data.append({'year': year, 'class': income_class, 'median_income': df_group['ADJUSTED_INC'].median()})
 
+# calculate change per year
 income_data = pd.DataFrame(income_data).set_index(['year', 'class'])
 income_data['change'] = income_data['median_income'].diff(3)
 income_data['pct_change'] = income_data['median_income'].pct_change(3) * 100
 
+# calculate total change since 2014
 income_data['total_change'] = income_data['change'].groupby('class').cumsum().fillna(0)
 income_data['total_change_pct'] = ((income_data['total_change'] / (income_data['median_income'] - income_data['total_change'])) * 100).fillna(0)
 
-income_data
-
+# create plotly line chart showing dollar increase
 raw_increase = px.line(income_data, x=income_data.index.get_level_values(0), y='total_change',
 color=income_data.index.get_level_values(1), markers=True, title="Dollar Change in Income Over Time (2014-2024)",
 labels={
@@ -31,6 +33,7 @@ labels={
     'color': 'Income Class'
 })
 
+# create plotly line chart showing percentage increase
 pct_increase = px.line(income_data, x=income_data.index.get_level_values(0), y='total_change_pct',
 color=income_data.index.get_level_values(1), markers=True, title="Percent Change in Income Over Time (2014-2024)",
 labels={

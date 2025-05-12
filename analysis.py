@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 
 class Analysis(ABC):
     """Analysis class to help with logging and organization"""
+
     def __init__(self, data: pd.DataFrame):
         self.data = data
         print(f"Initializing a new Analysis of type {self.__class__.__name__}")
@@ -27,14 +28,20 @@ class Analysis(ABC):
 
     @abstractmethod
     def do_analysis(self):
+        """Perform the analysis"""
+
         pass
 
     @abstractmethod
-    def visualize(self):
+    def visualize(self) -> go.Figure:
+        """Return appropriate visualization after analysis"""
+
         pass
 
 class PermutationImportance(Analysis):
     def do_analysis(self):
+
+        # bin age groups
         def bin_age(row):
             if row < 20:
                 return '0-19'
@@ -220,7 +227,6 @@ class CrossSectionalRegression(Analysis):
 
             # Fit the model on the current year's data
             model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
 
             # Get the coefficients for the model
             coefficients = model.named_steps['linearregression'].coef_

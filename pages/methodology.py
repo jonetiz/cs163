@@ -5,6 +5,7 @@ import data, analysis
 
 dash.register_page(__name__, path='/methodology')
 
+# analysis code found in analysis.py
 permutation_importance = analysis.PermutationImportance(data.asec_data)
 cross_sectional_regression = analysis.CrossSectionalRegression(data.asec_data)
 quantile = analysis.Quantile(data.fam_data)

@@ -36,4 +36,5 @@ if BUCKET_NAME:
 else:
     asec_data = pd.read_csv('data/output/merged/merged_asec.csv')
     fam_data = pd.read_csv('data/output/merged/merged_fam.csv')
+    
 print(f"Loaded ASEC data; Shape: {asec_data.shape}")

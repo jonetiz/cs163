@@ -24,12 +24,21 @@ python cs163website.py
 ```
 
 ### Google App Engine Setup
-TODO
+The application is run on [Google App Engine (GAE)](https://cloud.google.com/appengine?hl=en), with data stored on [Google Cloud Storage (GCS)](https://cloud.google.com/storage?hl=en). To deploy the production environment to Google Cloud, create a project in the Google Cloud console, and upload the files `merged_asec.csv` and `merged_fam.csv`, that were generated in the **Data Processing** step above to the GCS bucket for the project.
+
+Make a copy of the `app.yaml.template` file in the root directory of this project, and supplant the `INSERT_GCLOUD_BUCKET_NAME` string with the name of your project's gcloud bucket.
+
+Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install) on yourr local machine, and run the `gloud init` command to login and set the project.
+
+Once you have logged in, set the correct project, and configured `app.yaml`, execute the following command in the project directory:
+```
+gcloud app deploy
+```
 
 ## Data Pipeline
 The data used in this project is from the [US Census Bureau's Annual Social and Economic Supplements](https://www.census.gov/data/datasets/time-series/demo/cps/cps-asec.html) between the years of 2014 and 2024. The data is combined with many (unused) features dropped, and then uploaded to a Google Cloud Storage bucket.
 
-All visualizations are rendered and analyses performed on Google App Engine from the merged, culled datset.
+All visualizations are rendered and analyses performed on Google App Engine from the merged, culled datsets, that are stored on GCS.
 
 ## Project Structure
 ```
@@ -37,9 +46,8 @@ All visualizations are rendered and analyses performed on Google App Engine from
 ├─ assets/                      # Static assets
 │   └─ stylesheet.css
 │
-├─ data/                        # Files pertinent data processing
-│   ├─ analysis.ipynb           # Analysis & visualization code
-│   └─ data_processing.ipynb    # Processes original dataset
+├─ data/
+│   └─ data_processing.ipynb    # Instructions for data pre-processing
 │
 ├─ pages/                       # Plotly dash pages
 │   ├─ findings.py
