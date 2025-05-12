@@ -1,18 +1,8 @@
 import dash
 from dash import html, dcc
-
-import analysis, data
+import graph_cache
 
 dash.register_page(__name__, path='/findings')
-
-asec_data = data.asec_data
-fam_data = data.fam_data
-
-poverty_fig = analysis.PovertyAnalysis(asec_data).visualize()
-income_dollar_fig, income_pct_fig = analysis.IncomeGrowth(asec_data).visualize()
-quantile = analysis.Quantile(fam_data)
-permutation_importance = analysis.PermutationImportance(asec_data)
-cross_sectional_regression = analysis.CrossSectionalRegression(asec_data)
 
 layout = html.Div([
     html.H2("Overview"),
@@ -34,14 +24,14 @@ layout = html.Div([
     html.H4("BLUF: Our findings find no correlation between higher earnings and higher wage growth, but other factors do apply."),
     html.P("Many people have the conception that lower income earners (particularly those near the poverty line) do not experience proportionate wage growth to higher " \
     "earners, or that they do not see enough increases to outpace poverty. Our analysis found this to be mostly untrue."),
-    dcc.Graph(figure=poverty_fig),
+    dcc.Graph(figure=graph_cache.get('poverty_fig')),
     html.I("As shown in the chart above, the lower class's income in general outpaces the poverty line."),
-    dcc.Graph(figure=income_pct_fig),
+    dcc.Graph(figure=graph_cache.get('income_pct_fig')),
     html.I("The above graph shows the percentage increase of all classes; most earners between 2014 and 2024 saw similar income growth across the lower, middle, " \
-    "and upper classes."),
+    "and upper classes. Note the jump in 2020; this may be due to COVID-19 stimulus checks."),
 
-    html.H4("There does, however, appear to be some disproportionate increase in the 90th percentile of the upper class."),
-    dcc.Graph(figure=quantile.visualize(percentage=True)),
+    html.H4("There does appear to be some disproportionate increase in the 90th percentile of the upper class."),
+    dcc.Graph(figure=graph_cache.get('quantile_pct')),
     html.P("This chart shows that the lower, middle, and upper classes generally see an increase between 43 and 50 percent, however the 90th percentile of the" \
     " upper class saw an increase closer to 60 percent. An interesting note from this chart as well, is that upper middle class earners seem to have the least" \
     " percentage increases across the board."),
@@ -52,8 +42,8 @@ layout = html.Div([
     html.P("After running permutation importance and cross-sectional regression analyses on our data, we found that the factors that most correlate to higher" \
     " income growth are education level and occupation."),
     dcc.Tabs([
-        dcc.Tab(dcc.Graph(figure=permutation_importance.visualize()), label="Important Features"),
-        dcc.Tab(dcc.Graph(figure=cross_sectional_regression.visualize()), label="Importance of Features Over Time")
+        dcc.Tab(dcc.Graph(figure=graph_cache.get('permutation_importance')), label="Important Features"),
+        dcc.Tab(dcc.Graph(figure=graph_cache.get('cross_sectional_regression')), label="Importance of Features Over Time")
     ]),
     html.P("According to the cross-sectional regression, there does seem to be a correlation with family size, and military service had a strong correlation prior to 2021." \
     "Age has a weak negative correlation, likely due to entry level positions paying higher and higher. Having income from investments and retirement had nearly " \

@@ -1,9 +1,9 @@
 import dash
 from dash import html, dcc
 
-import analysis, data
+from graph_cache import get
 
-dollar_change, pct_change = analysis.IncomeGrowth(data.asec_data).visualize()
+dollar_change, pct_change = get('income_dollar_fig'), get('income_pct_fig')
 
 dash.register_page(__name__, path='/')
 
@@ -19,7 +19,7 @@ layout = html.Div([
         dcc.Tab(dcc.Graph(figure=dollar_change), label='Dollar-Value Increase'),
         dcc.Tab(dcc.Graph(figure=pct_change), label='Percentage Increase')
     ]),
-    html.I("The above charts show dollar-value and percentage increases in income over time across the different classes." \
+    html.I("The above charts show dollar-value and percentage increases in income over time across the different classes. " \
     "Notably, percentage increases track similarly across all classes, with the middle class consistently seeing the least percentage increase."),
     html.P("For further information, this site showcases the sum of our work, with the following pages:"),
     html.Ul([

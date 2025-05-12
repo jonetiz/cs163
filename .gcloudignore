@@ -19,6 +19,7 @@ __pycache__/
 /setup.cfg
 
 data/
+cache/
 app.yaml.template
 
 .venv/

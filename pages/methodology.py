@@ -1,28 +1,20 @@
 import dash
 from dash import html, dcc
-import data, analysis
+
+from graph_cache import get
 
 dash.register_page(__name__, path='/methodology')
 
-asec_data = data.asec_data
-fam_data = data.fam_data
-
-# analysis code found in analysis.py
-permutation_importance = analysis.PermutationImportance(asec_data)
-cross_sectional_regression = analysis.CrossSectionalRegression(asec_data)
-quantile = analysis.Quantile(fam_data)
-
 layout = html.Div([
     html.H3("Permutation Importance Analysis"),
-    dcc.Graph(figure=permutation_importance.visualize()),
+    dcc.Graph(figure=get('permutation_importance')),
     html.H4("What it means:"),
     html.P("This plot shows the feature importance (calculated by using a Random Trees Regressor) of each of the listed factors with respect to wage growth. In other words, the greater the importance value, the greater the influence the respective feature has on wage growth."),
     html.H4("What it shows:"),
     html.P("The features with the greatest influence on wage growth, by a large margin, are education level, and job type. The only aspect of age that really influences wage growth is whether or not the individual is elderly. This is inferred from the observation that most of the age bins have a negligible importance value (0.2 and under), whereas the bin for ages 80 and over has a much higher importance value (nearing 0.7)."),
-    html.I(f"RMSE: {permutation_importance.rmse}"),
 
     html.H3("Cross-Sectional Regression Analysis"),
-    dcc.Graph(figure=cross_sectional_regression.visualize()),
+    dcc.Graph(figure=get('cross_sectional_regression')),
     html.H4("What it means:"),
     html.P("These plots track the change in regression coefficients for each of the listed features with respect to total earnings between the years 2014 and 2024. This gives insight on each features' correlation with wage growth by showing how their impact changes over time."),
     html.H4("What it shows:"),
@@ -31,10 +23,10 @@ layout = html.Div([
     html.H3("Percentile Analysis of Wage Growth"),
     dcc.Tabs([
         dcc.Tab(label='Wage Growth in Dollars', children=[
-            dcc.Graph(figure=quantile.visualize(percentage=False))
+            dcc.Graph(figure=get('quantile'))
         ]),
         dcc.Tab(label='Wage Growth Percentage', children=[
-            dcc.Graph(figure=quantile.visualize(percentage=True))
+            dcc.Graph(figure=get('quantile_pct'))
         ])
     ]),
     html.H4("What it means:"),

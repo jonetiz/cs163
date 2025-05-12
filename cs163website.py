@@ -1,6 +1,30 @@
 import dash
 from dash import Dash, html, dcc, Input, Output, ALL
 
+import analysis, data
+import graph_cache
+
+# handlle all analysis/caching in main file so it only runs once to save time
+asec_data = data.asec_data
+fam_data = data.fam_data
+
+poverty_fig = analysis.PovertyAnalysis(asec_data).visualize()
+graph_cache.cache(poverty_fig, 'poverty_fig')
+
+income_dollar_fig, income_pct_fig = analysis.IncomeGrowth(asec_data).visualize()
+graph_cache.cache(income_dollar_fig, 'income_dollar_fig')
+graph_cache.cache(income_pct_fig, 'income_pct_fig')
+
+quantile = analysis.Quantile(fam_data)
+graph_cache.cache(quantile.visualize(percentage=False), 'quantile')
+graph_cache.cache(quantile.visualize(percentage=True), 'quantile_pct')
+
+permutation_importance = analysis.PermutationImportance(asec_data)
+graph_cache.cache(permutation_importance.visualize(), 'permutation_importance')
+
+cross_sectional_regression = analysis.CrossSectionalRegression(asec_data)
+graph_cache.cache(cross_sectional_regression.visualize(), 'cross_sectional_regression')
+
 app = Dash(__name__, use_pages=True)
 
 server = app.server
