@@ -11,7 +11,7 @@ layout = html.Div([
     html.H4("What it means:"),
     html.P("This plot shows the feature importance (calculated by using a Random Trees Regressor) of each of the listed factors with respect to wage growth. In other words, the greater the importance value, the greater the influence the respective feature has on wage growth."),
     html.H4("What it shows:"),
-    html.P("The features with the greatest influence on wage growth, by a large margin, are education level, and job type. The only aspect of age that really influences wage growth is whether or not the individual is elderly. This is inferred from the observation that most of the age bins have a negligible importance value (0.2 and under), whereas the bin for ages 80 and over has a much higher importance value (nearing 0.7)."),
+    html.P("The features with the greatest influence on wage growth, by a large margin, are education level, and job type. The only aspect of age that really influences wage growth is whether or not the individual is elderly. This is inferred from the observation that most of the age bins have a negligible importance value (0.2 and under), whereas the bin for ages 80 and over has a higher importance value (closer 0.3)."),
 
     html.H3("Cross-Sectional Regression Analysis"),
     dcc.Graph(figure=get('cross_sectional_regression')),
