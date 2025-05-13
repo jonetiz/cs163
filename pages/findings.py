@@ -49,6 +49,15 @@ layout = html.Div([
     "Age has a weak negative correlation, likely due to entry level positions paying higher and higher. Having income from investments and retirement had nearly " \
     "no correlation, contradicting one of our hypotheses that people with investments would have much higher income increases. This does make sense, however " \
     "when given the context that the vast majority of people make significantly more money from wages/salary than investments."),
+    dcc.Tabs([
+        dcc.Tab(dcc.Graph(figure=graph_cache.get('education_change')), label="Change by Education"),
+        dcc.Tab(dcc.Graph(figure=graph_cache.get('occupation_change')), label="Change by Occupation"),
+    ]),
+    html.P(["The above graphs show changes in median income by education level, and occupation, respectively. These clearly illustrate that certain occupations and "
+    "educational levels have advantages in income growth. Note: This data is ", html.B("not"), " based on adjusted income since grouping families by occupation "
+    "would not make sense. It additionally excludes people under the age of 18, and the 'Armed Forces' occupation, as this occupation showed extreme variance "
+    "throughout the years (likely due to service members in different survey years being at different pay grades) and would not work with the scaling of the "
+    "rest of the graph."]),
 
     html.H2("Conclusion"),
     html.P("In general, most families see a similar upward trend of income growth across the socioeconomic spectrum, with the exception being the high-upper class. " \

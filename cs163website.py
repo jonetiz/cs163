@@ -15,6 +15,11 @@ income_dollar_fig, income_pct_fig = analysis.IncomeGrowth(asec_data).visualize()
 graph_cache.cache(income_dollar_fig, 'income_dollar_fig')
 graph_cache.cache(income_pct_fig, 'income_pct_fig')
 
+
+education_change, occupation_change = analysis.PersonalIncomeGrowth(asec_data).visualize()
+graph_cache.cache(education_change, 'education_change')
+graph_cache.cache(occupation_change, 'occupation_change')
+
 quantile = analysis.Quantile(fam_data)
 graph_cache.cache(quantile.visualize(percentage=False), 'quantile')
 graph_cache.cache(quantile.visualize(percentage=True), 'quantile_pct')

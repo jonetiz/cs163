@@ -423,3 +423,174 @@ class PovertyAnalysis(Analysis):
         })
 
         return fig
+    
+class PersonalIncomeGrowth(Analysis):
+    def do_analysis(self):
+
+        # calculate change in income over each year for individuals based on class, education, and occupation
+        income_data = []
+        for year in range(2014, 2025):
+            df_year = self.data[(self.data['YEAR'] == year) * (self.data['A_AGE'] >= 18)]
+            df_year.loc[:, 'EDUCATION'] = df_year['A_HGA'].map({
+                0: 'No Diploma',
+                31: 'No Diploma',
+                32: 'No Diploma',
+                33: 'No Diploma',
+                34: 'No Diploma',
+                35: 'No Diploma',
+                36: 'No Diploma',
+                37: 'No Diploma',
+                38: 'No Diploma',
+                39: 'HS Diploma or GED',
+                40: 'Some College, no degree',
+                41: 'Trade / Vocational School',
+                42: 'Associate\'s Degree',
+                43: 'Bachelor\'s Degree',
+                44: 'Master\'s Degree',
+                45: 'Professional Doctorate',
+                46: 'Academic Doctorate',
+
+            })
+            df_year.loc[:, 'OCCUPATION'] = df_year['A_MJOCC'].map({
+                0: 'Unemployed',
+                1: 'Management / Business / Financial',
+                2: 'Professional',
+                3: 'Service Occupations',
+                4: 'Sales',
+                5: 'Office / Administrative',
+                6: 'Farming / Fishing / Agriculture',
+                7: 'Construction / Extraction',
+                8: 'Installation / Maintenance / Repair',
+                9: 'Production / Factory',
+                10: 'Transportation'
+            }, na_action='ignore')
+            income_data.append(df_year)
+
+        group = ['YEAR', 'EDUCATION', 'OCCUPATION']
+        filtered_data = pd.concat(income_data)[['YEAR', 'OCCUPATION', 'EDUCATION', 'PEARNVAL']].set_index(group)
+
+        # education and occupation data need to be split because we are looking at individual effects of both on income growth
+
+        # educational data; calculate median income for each year and education level
+        self.education_data = filtered_data.groupby(['YEAR', 'EDUCATION']).median()
+        self.education_data['change'] = self.education_data.groupby(level=1)['PEARNVAL'].diff().fillna(0)
+        self.education_data['pct_change'] = self.education_data.groupby(level=1)['PEARNVAL'].pct_change().fillna(0) * 100
+
+        self.education_data['total_change'] = self.education_data['change'].groupby(level=1).cumsum().fillna(0)
+        self.education_data['total_change_pct'] = ((self.education_data['total_change'] / (self.education_data['PEARNVAL'] - self.education_data['total_change'])) * 100).fillna(0)
+
+
+        # occupational data; calculate median income for each year and occupation
+        self.occupation_data = filtered_data.groupby(['YEAR', 'OCCUPATION']).median()
+        self.occupation_data['change'] = self.occupation_data.groupby(level=1)['PEARNVAL'].diff().fillna(0)
+        self.occupation_data['pct_change'] = self.occupation_data.groupby(level=1)['PEARNVAL'].pct_change().fillna(0) * 100
+
+        self.occupation_data['total_change'] = self.occupation_data['change'].groupby(level=1).cumsum().fillna(0)
+        self.occupation_data['total_change_pct'] = ((self.occupation_data['total_change'] / (self.occupation_data['PEARNVAL'] - self.occupation_data['total_change'])) * 100).fillna(0)
+
+        self.education_data = self.education_data.reset_index(level=1)
+        self.occupation_data = self.occupation_data.reset_index(level=1)
+    def visualize(self) -> tuple[go.Figure]:
+        # education data plot
+        education_levels = ['No Diploma',
+                            'HS Diploma or GED',
+                            'Some College, no degree',
+                            'Trade / Vocational School',
+                            'Associate\'s Degree',
+                            'Bachelor\'s Degree',
+                            'Master\'s Degree',
+                            'Professional Doctorate',
+                            'Academic Doctorate']
+
+        education_fig = px.line(self.education_data,
+                                y='total_change',
+                                color='EDUCATION',
+                                markers=True,
+                                title="Change in Income Over Time by Education Level (2014-2024)",
+                                labels={
+                                    'YEAR': 'Year',
+                                    'total_change': 'Change since 2014',
+                                    'EDUCATION': 'Education Level'
+                                },
+                                category_orders={
+                                    'EDUCATION': education_levels
+                                })
+
+        education_fig.update_layout(
+            updatemenus = [{
+                'buttons':[
+                    {
+                        'args': [{'y': [self.education_data.loc[self.education_data['EDUCATION'] == i].loc[:, 'total_change'] for i in education_levels]},
+                                 {'yaxis.title.text': 'Change since 2014 ($)'}],
+                        'label': 'Dollar Value',
+                        'method': 'update'
+                    },
+                    {
+                        'args': [{'y': [self.education_data.loc[self.education_data['EDUCATION'] == i].loc[:, 'total_change_pct'] for i in education_levels]},
+                                 {'yaxis.title.text': 'Change since 2014 (%)'}],
+                        'label': 'Percent Value',
+                        'method': 'update'
+                    },
+                ],
+                'direction': 'down',
+                'showactive': True,
+                'yanchor': 'top',
+                'y': 1.125,
+                'x': 0.37
+            }]
+        )
+
+        # occupation plot
+        occupations = [
+            'Unemployed',
+            'Management / Business / Financial',
+            'Professional',
+            'Service Occupations',
+            'Sales',
+            'Office / Administrative',
+            'Farming / Fishing / Agriculture',
+            'Construction / Extraction',
+            'Installation / Maintenance / Repair',
+            'Production / Factory',
+            'Transportation',
+            'Armed Forces'] # armed forces is excluded because the data is very inconsistent and ruins the graph
+
+        occupation_fig = px.line(self.occupation_data,
+                                y='total_change',
+                                color='OCCUPATION',
+                                markers=True,
+                                title="Change in Income Over Time by Occupation (2014-2024)",
+                                labels={
+                                    'YEAR': 'Year',
+                                    'total_change': 'Change since 2014',
+                                    'OCCUPATION': 'Occupation Type'
+                                },
+                                category_orders={
+                                    'OCCUPATION': occupations
+                                })
+
+        occupation_fig.update_layout(
+            updatemenus = [{
+                'buttons':[
+                    {
+                        'args': [{'y': [self.occupation_data.loc[self.occupation_data['OCCUPATION'] == i].loc[:, 'total_change'] for i in occupations]},
+                                 {'yaxis.title.text': 'Change since 2014 ($)'}],
+                        'label': 'Dollar Value',
+                        'method': 'update'
+                    },
+                    {
+                        'args': [{'y': [self.occupation_data.loc[self.occupation_data['OCCUPATION'] == i].loc[:, 'total_change_pct'] for i in occupations]},
+                                 {'yaxis.title.text': 'Change since 2014 (%)'}],
+                        'label': 'Percent Value',
+                        'method': 'update'
+                    },
+                ],
+                'direction': 'down',
+                'showactive': True,
+                'yanchor': 'top',
+                'y': 1.125,
+                'x': 0.37
+            }]
+        )
+
+        return education_fig, occupation_fig
